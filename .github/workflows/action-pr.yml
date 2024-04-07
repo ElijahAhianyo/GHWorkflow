@@ -1,0 +1,38 @@
+name: benchmarking
+
+on:
+  pull_request:
+    types:
+      - closed
+    paths-ignore:
+      - '**/*.md'
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  PYTHONIOENCODING: 'utf8'
+  TELEMETRY_ENABLED: false
+  NODE_OPTIONS: '--max_old_space_size=4096'
+  PR_TITLE: ${{ github.event.pull_request.title }}
+
+jobs:
+  if_merged:
+    if: github.event.pull_request.merged == true
+    reflex-web:
+      strategy:
+        fail-fast: false
+        matrix:
+          # Show OS combos first in GUI
+          os: [ ubuntu-latest ]
+          python-version: [ '3.11.4' ]
+
+      runs-on: ${{ matrix.os }}
+      steps:
+        - uses: actions/checkout@v4
+        - name: Test PR title
+          run: echo ${{ github.event.pull_request.title }}
